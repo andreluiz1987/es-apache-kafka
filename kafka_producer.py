@@ -19,27 +19,50 @@ producer = KafkaProducer(
 
 
 def generate_log_message():
-    levels = ["INFO", "WARNING", "ERROR", "DEBUG"]
-    messages = [
-        "User login successful",
-        "User login failed",
-        "Database connection established",
-        "Database connection failed",
-        "Service started",
-        "Service stopped",
-        "Payment processed",
-        "Payment failed"
-    ]
-    log_entry = {
-        "level": random.choice(levels),
-        "message": random.choice(messages),
-        "timestamp": time.time()
+    # Gera um timestamp com diferença de 5 a 10 minutos
+    diff_seconds = random.uniform(300, 600)  # Gera um valor aleatório entre 300 e 600
+    timestamp = time.time() - diff_seconds  # Ajusta o timestamp atual
+
+    # Define os níveis de log e mensagens associadas
+    log_messages = {
+        "INFO": [
+            "User login successful",
+            "Database connection established",
+            "Service started",
+            "Payment processed"
+        ],
+        "WARNING": [
+            "Service stopped",
+            "Payment may not have been processed"
+        ],
+        "ERROR": [
+            "User login failed",
+            "Database connection failed",
+            "Payment failed"
+        ],
+        "DEBUG": [
+            "Debugging user login flow",
+            "Debugging database connection"
+        ]
     }
+
+    # Seleciona um nível de log aleatório
+    level = random.choice(list(log_messages.keys()))
+    # Seleciona uma mensagem aleatória correspondente ao nível escolhido
+    message = random.choice(log_messages[level])
+
+    # Cria a entrada de log
+    log_entry = {
+        "level": level,
+        "message": message,
+        "timestamp": timestamp
+    }
+
     return log_entry
 
 def send_log_batches(topic, num_batches=5, batch_size=10):
     for i in range(num_batches):
-        logger.info(f"Enviando batch {i + 1}/{num_batches}")
+        logger.info(f"Sending batch {i + 1}/{num_batches}")
         for _ in range(batch_size):
             log_message = generate_log_message()
             producer.send(topic, value=log_message)
