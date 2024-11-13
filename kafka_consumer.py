@@ -36,6 +36,7 @@ if __name__ == "__main__":
             # process each batch messages
             for _, records in messages.items():
                 logs = [json.loads(record.value) for record in records]
+                # print(logs)
                 bulk_actions = create_bulk_actions(logs)
                 response = helpers.bulk(es, bulk_actions)
                 print(f"Indexed {response[0]} logs.")
